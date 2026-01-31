@@ -265,7 +265,12 @@ class Formula:
         Returns:
             A formula whose standard string representation is the given string.
         """
-        assert Formula.is_formula(string)
+        f, r = Formula._parse_prefix(string)
+        if f is None or r != '':
+            return Formula()
+        else:
+            return f
+        # assert Formula.is_formula(string)
         # Task 1.6
 
     def polish(self) -> str:
