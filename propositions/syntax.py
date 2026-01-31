@@ -297,6 +297,35 @@ class Formula:
         Returns:
             A formula whose polish notation representation is the given string.
         """
+        i = 0
+        nach, st = [], []
+        while i < len(string):
+            if i < len(string) - 1 and string[i] + string[i + 1] == '->':
+                i += 2
+                nach.append('->')
+            else:
+                chr = string[i]
+                if (is_constant(chr) or is_unary(chr)) or (chr == '&' or chr == '|'):
+                    nach.append(chr)
+                    i += 1
+                else:
+                    j = i + 1
+                    while j < len(string) and string[j].isdigit():
+                        j += 1
+                    nach.append(string[i:j])
+                    i = j
+        nach.reverse()
+        for x in nach:
+            if is_variable(x) or is_constant(x):
+                st.append(Formula(x))
+            elif is_unary(x):
+                f = st.pop()
+                st.append(Formula('~', f))
+            else:
+                f1 = st.pop()
+                f2 = st.pop()
+                st.append(Formula(x, f1, f2))
+        return st[0]
         # Optional Task 1.8
 
     def substitute_variables(self, substitution_map: Mapping[str, Formula]) -> \
