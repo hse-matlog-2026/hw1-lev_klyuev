@@ -151,6 +151,14 @@ class Formula:
         Returns:
             A set of all variable names used in the current formula.
         """
+        if is_variable(self.root):
+            return {self.root}
+        if is_constant(self.root):
+            return set()
+        if is_unary(self.root):
+            return self.first.variables()
+        if is_binary(self.root):
+            return self.first.variables().union(self.second.variables())
         # Task 1.2
 
     @memoized_parameterless_method
