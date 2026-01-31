@@ -196,6 +196,45 @@ class Formula:
             should be of ``None`` and an error message, where the error message
             is a string with some human-readable content.
         """
+        if len(string) == 0:
+            return None, "ничего нет"
+        chr = string[0]
+        if is_constant(chr):
+            return Formula(chr), string[1:]
+        if 'p' <= chr <= 'z':
+            i = 1
+            while i < len(string) and string[i].isdigit():
+                i += 1
+            im = string[:i]
+            if is_variable(im) == 0:
+                return None, "ошибка"
+            return Formula(im), string[i:]
+        if is_unary(chr):
+            f, r = Formula._parse_prefix(string[1:])
+            if f is None:
+                return None, r
+            return Formula('~', f), r
+        if chr == '(':
+            l, r = Formula._parse_prefix(string[1:])
+            if l is None:
+                return None, r
+            if len(r) == 0:
+                return None, "ошибка"
+            if r[0] == '&' or r[0] == '|':
+                op = r[0]
+                r = r[1:]
+            elif r.startswith('->'):
+                op = '->'
+                r = r[2:]
+            else:
+                return None, "ошибка"
+            rht, r = Formula._parse_prefix(r)
+            if rht is None:
+                return None, r
+            if len(r) == 0 or r[0] != ')':
+                return None, "ошибка"
+            return Formula(op, l, rht), r[1:]
+        return None, "ошибка"
         # Task 1.4
 
     @staticmethod
@@ -209,6 +248,11 @@ class Formula:
             ``True`` if the given string is a valid standard string
             representation of a formula, ``False`` otherwise.
         """
+        f, r = Formula._parse_prefix(string)
+        if f is not None and len(r) == 0:
+            return 1
+        else:
+            return 0
         # Task 1.5
         
     @staticmethod
