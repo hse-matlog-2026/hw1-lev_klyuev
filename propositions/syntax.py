@@ -169,6 +169,14 @@ class Formula:
             A set of all operators (including ``'T'`` and ``'F'``) used in the
             current formula.
         """
+        if is_variable(self.root):
+            return set()
+        if is_constant(self.root):
+            return {self.root}
+        if is_unary(self.root):
+            return {self.root}.union(self.first.operators())
+        if is_binary(self.root):
+            return {self.root}.union(self.first.operators()).union(self.second.operators())
         # Task 1.3
         
     @staticmethod
